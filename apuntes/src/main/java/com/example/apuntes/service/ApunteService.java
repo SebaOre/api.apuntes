@@ -14,7 +14,7 @@ public class ApunteService {
 
     private final ApunteRepository apunteRepository;
 
-    // Crear un apunte
+    // Crear un apunte con userId
     public Apunte crear(Apunte apunte) {
         limpiarCampos(apunte);
         apunte.setFechaCreacion(LocalDateTime.now());
@@ -22,50 +22,57 @@ public class ApunteService {
         return apunteRepository.save(apunte);
     }
 
-    // Obtener todos
-    public List<Apunte> obtenerTodos() {
-        return apunteRepository.findAll();
+    // Obtener todos los apuntes del usuario
+    public List<Apunte> listarPorUser(String userId) {
+        return apunteRepository.findByUserId(userId);
     }
 
-    // Obtener uno
+    // Obtener UN apunte (luego se valida en el controller si pertenece al user)
     public Apunte obtenerPorId(String id) {
         return apunteRepository.findById(id)
                 .orElse(null);
     }
 
-    // Buscar por texto en título o contenido
-    public List<Apunte> buscarPorTexto(String texto) {
+    // Buscar por texto dentro de los apuntes del usuario
+    public List<Apunte> buscarPorTexto(String userId, String texto) {
         return apunteRepository
-                .findByTituloContainingIgnoreCaseOrContenidoContainingIgnoreCase(texto, texto);
+                .findByTituloContainingIgnoreCaseOrContenidoContainingIgnoreCase(texto, texto)
+                .stream()
+                .filter(a -> a.getUserId().equals(userId))
+                .toList();
     }
 
-    // Buscar por ramo
-    public List<Apunte> buscarPorRamo(String ramo) {
-        return apunteRepository.findByRamoIgnoreCase(ramo);
+    // Buscar por ramo solo dentro del usuario
+    public List<Apunte> buscarPorRamo(String userId, String ramo) {
+        return apunteRepository.findByUserId(userId)
+                .stream()
+                .filter(a -> a.getRamo().equalsIgnoreCase(ramo))
+                .toList();
     }
 
-    // Buscar por tags
-    public List<Apunte> buscarPorTags(List<String> tags) {
-        return apunteRepository.findByTagsInIgnoreCase(tags);
+    // Buscar por tags solo del usuario
+    public List<Apunte> buscarPorTags(String userId, List<String> tags) {
+        return apunteRepository.findByUserId(userId)
+                .stream()
+                .filter(a -> a.getTags().stream().anyMatch(tags::contains))
+                .toList();
     }
 
-    // Actualizar
-    public Apunte actualizar(String id, Apunte nuevo) {
-        return apunteRepository.findById(id).map(apunte -> {
+    // Actualizar un apunte
+    public Apunte actualizar(Apunte original, Apunte nuevo) {
 
-            apunte.setRamo(nuevo.getRamo());
-            apunte.setTitulo(nuevo.getTitulo());
-            apunte.setContenido(nuevo.getContenido());
-            apunte.setTags(nuevo.getTags());
+        original.setRamo(nuevo.getRamo());
+        original.setTitulo(nuevo.getTitulo());
+        original.setContenido(nuevo.getContenido());
+        original.setTags(nuevo.getTags());
 
-            limpiarCampos(apunte);
-            apunte.setFechaActualizacion(LocalDateTime.now());
+        limpiarCampos(original);
+        original.setFechaActualizacion(LocalDateTime.now());
 
-            return apunteRepository.save(apunte);
-        }).orElse(null);
+        return apunteRepository.save(original);
     }
 
-    // Eliminar
+    // Eliminar un apunte
     public boolean eliminar(String id) {
         if (apunteRepository.existsById(id)) {
             apunteRepository.deleteById(id);
@@ -74,10 +81,7 @@ public class ApunteService {
         return false;
     }
 
-    // -------------------------------------
-    // MÉTODOS INTERNOS (limpieza)
-    // -------------------------------------
-
+    // Limpieza de datos
     private void limpiarCampos(Apunte apunte) {
         if (apunte.getRamo() != null)
             apunte.setRamo(apunte.getRamo().trim());

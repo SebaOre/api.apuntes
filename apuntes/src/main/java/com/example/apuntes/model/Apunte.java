@@ -27,4 +27,7 @@ public class Apunte {
     private LocalDateTime fechaActualizacion;
 
     private List<String> tags;
+
+    private String userId;
+
 }

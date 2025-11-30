@@ -15,12 +15,17 @@ public class RamoService {
         this.ramoRepository = ramoRepository;
     }
 
-    public List<Ramo> listar() {
-        return ramoRepository.findAll();
+    public List<Ramo> listarPorUser(String userId) {
+        return ramoRepository.findByUserId(userId);
     }
 
     public Ramo crear(Ramo ramo) {
         return ramoRepository.save(ramo);
+    }
+
+    public Ramo obtenerPorId(String id) {
+        return ramoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Ramo no encontrado"));
     }
 
     public void eliminar(String id) {
@@ -28,8 +33,7 @@ public class RamoService {
     }
 
     public Ramo actualizar(String id, Ramo datos) {
-        Ramo existente = ramoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ramo no encontrado"));
+        Ramo existente = obtenerPorId(id);
 
         existente.setNombre(datos.getNombre());
         existente.setColor(datos.getColor());
@@ -37,3 +41,4 @@ public class RamoService {
         return ramoRepository.save(existente);
     }
 }
+

@@ -2,79 +2,99 @@ package com.example.apuntes.controller;
 
 import com.example.apuntes.model.Apunte;
 import com.example.apuntes.service.ApunteService;
-import lombok.RequiredArgsConstructor;
-
+import com.example.apuntes.config.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
 @RequestMapping("/apuntes")
-@RequiredArgsConstructor
-@CrossOrigin("*") // Permite llamadas desde React mientras desarrollas
+@CrossOrigin(origins = "*")
 public class ApunteController {
 
     private final ApunteService apunteService;
+    private final JwtUtil jwtUtil;
 
-    // Crear apunte
-    @PostMapping
-    public ResponseEntity<Apunte> crear(@RequestBody Apunte apunte) {
-        Apunte creado = apunteService.crear(apunte);
-        return ResponseEntity.ok(creado);
+    public ApunteController(ApunteService apunteService, JwtUtil jwtUtil) {
+        this.apunteService = apunteService;
+        this.jwtUtil = jwtUtil;
     }
 
-    // Obtener todos
     @GetMapping
-    public ResponseEntity<List<Apunte>> obtenerTodos() {
-        return ResponseEntity.ok(apunteService.obtenerTodos());
+    public List<Apunte> listar(HttpServletRequest request) {
+        String token = jwtUtil.extractToken(request);
+        String userId = jwtUtil.getUserIdFromToken(token);
+
+        return apunteService.listarPorUser(userId);
     }
 
-    // Obtener por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Apunte> obtenerPorId(@PathVariable String id) {
+    public Apunte obtener(@PathVariable String id, HttpServletRequest request) {
+        String token = jwtUtil.extractToken(request);
+        String userId = jwtUtil.getUserIdFromToken(token);
+
         Apunte apunte = apunteService.obtenerPorId(id);
-        return (apunte != null)
-                ? ResponseEntity.ok(apunte)
-                : ResponseEntity.notFound().build();
+
+        if (!apunte.getUserId().equals(userId)) {
+            throw new RuntimeException("No tienes permiso para ver este apunte");
+        }
+
+        return apunte;
     }
 
-    // Buscar por texto (título o contenido)
-    @GetMapping("/buscar")
-    public ResponseEntity<List<Apunte>> buscarPorTexto(@RequestParam String texto) {
-        return ResponseEntity.ok(apunteService.buscarPorTexto(texto));
+    @PostMapping
+    public Apunte crear(@RequestBody Apunte apunte, HttpServletRequest request) {
+        String token = jwtUtil.extractToken(request);
+        String userId = jwtUtil.getUserIdFromToken(token);
+
+        apunte.setUserId(userId);
+        apunte.setFechaCreacion(LocalDateTime.now());
+        apunte.setFechaActualizacion(LocalDateTime.now());
+
+        return apunteService.crear(apunte);
     }
 
-    // Buscar por ramo
-    @GetMapping("/ramo/{ramo}")
-    public ResponseEntity<List<Apunte>> buscarPorRamo(@PathVariable String ramo) {
-        return ResponseEntity.ok(apunteService.buscarPorRamo(ramo));
-    }
-
-    // Buscar por tags: /apuntes/tags?tag=sql&tag=java
-    @GetMapping("/tags")
-    public ResponseEntity<List<Apunte>> buscarPorTags(@RequestParam List<String> tag) {
-        return ResponseEntity.ok(apunteService.buscarPorTags(tag));
-    }
-
-    // Actualizar apunte
     @PutMapping("/{id}")
-    public ResponseEntity<Apunte> actualizar(
-            @PathVariable String id,
-            @RequestBody Apunte apunte
-    ) {
-        Apunte actualizado = apunteService.actualizar(id, apunte);
-        return (actualizado != null)
-                ? ResponseEntity.ok(actualizado)
-                : ResponseEntity.notFound().build();
+    public Apunte actualizar(@PathVariable String id,
+                             @RequestBody Apunte body,
+                             HttpServletRequest request) {
+
+        String token = jwtUtil.extractToken(request);
+        String userId = jwtUtil.getUserIdFromToken(token);
+
+        Apunte original = apunteService.obtenerPorId(id);
+
+        if (!original.getUserId().equals(userId)) {
+            throw new RuntimeException("No tienes permiso para editar este apunte");
+        }
+
+        original.setTitulo(body.getTitulo());
+        original.setContenido(body.getContenido());
+        original.setRamo(body.getRamo());
+        original.setTags(body.getTags());
+        original.setFechaActualizacion(LocalDateTime.now());
+
+        return apunteService.crear(original);
     }
 
-    // Eliminar
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable String id) {
-        boolean eliminado = apunteService.eliminar(id);
-        return (eliminado)
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.notFound().build();
+    public ResponseEntity<Void> eliminar(@PathVariable String id,
+                                         HttpServletRequest request) {
+
+        String token = jwtUtil.extractToken(request);
+        String userId = jwtUtil.getUserIdFromToken(token);
+
+        Apunte original = apunteService.obtenerPorId(id);
+
+        if (!original.getUserId().equals(userId)) {
+            throw new RuntimeException("No tienes permiso para eliminar este apunte");
+        }
+
+        apunteService.eliminar(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

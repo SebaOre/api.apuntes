@@ -19,4 +19,12 @@ public interface ApunteRepository extends MongoRepository<Apunte, String> {
 
     // Buscar por tags
     List<Apunte> findByTagsInIgnoreCase(List<String> tags);
+
+    List<Apunte> findByUserId(String userId);
+    List<Apunte> findByUserIdAndTituloContainingIgnoreCase(String userId, String titulo);
+    List<Apunte> findByUserIdAndContenidoContainingIgnoreCase(String userId, String contenido);
+    List<Apunte> findByUserIdAndRamoIgnoreCase(String userId, String ramo);
+    List<Apunte> findByUserIdAndTagsInIgnoreCase(String userId, List<String> tags);
+
+
 }

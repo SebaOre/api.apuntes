@@ -18,6 +18,8 @@ public class Ramo {
 
     private String nombre;
     private String color;
+    private String userId;
+
 
     public Ramo() {}
 
