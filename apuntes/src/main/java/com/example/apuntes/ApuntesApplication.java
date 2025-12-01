@@ -10,6 +10,9 @@ public class ApuntesApplication {
         System.out.println("====== ENV MONGO_URI ======");
         System.out.println(System.getenv("MONGO_URI"));
         System.out.println("===========================");
+        System.out.println("====== LOADED MONGO PROPERTY ======");
+        System.out.println(System.getProperty("spring.data.mongodb.uri"));
+
 
         SpringApplication.run(ApuntesApplication.class, args);
 	}
