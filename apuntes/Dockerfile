@@ -10,7 +10,10 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
-ENV PORT=8085
-EXPOSE 8085
+ENV PORT=8080
+ENV MONGO_URI=${MONGO_URI}
+ENV SPRING_DATA_MONGODB_URI=${MONGO_URI}
+
+EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
