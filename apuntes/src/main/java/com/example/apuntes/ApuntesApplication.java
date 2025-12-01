@@ -7,7 +7,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ApuntesApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ApuntesApplication.class, args);
-	}
+        System.out.println("====== ENV MONGO_URI ======");
+        System.out.println(System.getenv("MONGO_URI"));
+        System.out.println("===========================");
 
+        SpringApplication.run(ApuntesApplication.class, args);
+	}
 }
