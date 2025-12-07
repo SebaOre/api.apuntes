@@ -41,7 +41,9 @@ public class SecurityConfig {
                     // 🔥 IMPORTANTE: agregar tus orígenes permitidos
                     config.addAllowedOrigin("http://localhost:5173");
                     config.addAllowedOrigin("https://sebaore13.vercel.app");
-
+                    config.addAllowedOrigin("https://sebaore13.dev");
+                    config.addAllowedOrigin("https://www.sebaore13.dev");
+                    
                     // Rutas permitidas
                     config.addAllowedHeader("*");
                     config.addAllowedMethod("*");
