@@ -33,8 +33,21 @@ public class SecurityConfig {
                 // Filtro JWT para las rutas protegidas
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
 
-                // CORS activado
-                .cors(cors -> {})
+                // CORS con configuración personalizada
+                .cors(cors -> cors.configurationSource(request -> {
+                    var config = new org.springframework.web.cors.CorsConfiguration();
+                    config.setAllowCredentials(true);
+
+                    // 🔥 IMPORTANTE: agregar tus orígenes permitidos
+                    config.addAllowedOrigin("http://localhost:5173");
+                    config.addAllowedOrigin("https://sebaore13.vercel.app");
+
+                    // Rutas permitidas
+                    config.addAllowedHeader("*");
+                    config.addAllowedMethod("*");
+
+                    return config;
+                }))
 
                 // Desactiva formularios de Spring
                 .formLogin(form -> form.disable())
