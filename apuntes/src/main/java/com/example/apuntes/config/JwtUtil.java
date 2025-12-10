@@ -14,7 +14,7 @@ public class JwtUtil {
 
     // Clave secreta para firmar el token (cámbiala en producción)
     private final String SECRET = "MI_SUPER_SECRETO_PULENTO_COMPAAA_2025";
-    
+
     // Duración del token: 8 horas
     private final long EXPIRATION_TIME = 1000 * 60 * 60 * 8;
 

@@ -44,7 +44,22 @@ public class AuthController {
     }
 
     @GetMapping("/validate")
-    public Map<String, String> validateToken() {
-        return Map.of("status", "valid");
+    public Map<String, Object> validateToken(@RequestHeader("Authorization") String header) {
+        if (header == null || !header.startsWith("Bearer ")) {
+            return Map.of(
+                    "valid", false,
+                    "reason", "No token provided"
+            );
+        }
+
+        String token = header.substring(7);
+
+        boolean valido = jwtUtil.isTokenValid(token);
+
+        return Map.of(
+                "valid", valido,
+                "reason", valido ? "Token OK" : "Token expired or invalid"
+        );
     }
+
 }
