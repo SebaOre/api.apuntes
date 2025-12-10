@@ -14,12 +14,13 @@ public class JwtUtil {
 
     // Clave secreta para firmar el token (cámbiala en producción)
     private final String SECRET = "MI_SUPER_SECRETO_PULENTO_COMPAAA_2025";
+    
+    // Duración del token: 8 horas
+    private final long EXPIRATION_TIME = 1000 * 60 * 60 * 8;
 
-    // Duración del token: 24 horas
-    private final long EXPIRATION_TIME = 1000 * 60 * 60 * 24;
 
 
-     // Genera un token JWT para un usuario
+    // Genera un token JWT para un usuario
 
     public String generateToken(User user) {
 

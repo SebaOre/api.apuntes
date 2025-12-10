@@ -18,6 +18,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Login y registro libres
                         .requestMatchers("/auth/login", "/auth/register").permitAll()
+                        .requestMatchers("/auth/validate").authenticated()
 
                         // Swagger libre cuando estás en LOCAL
                         .requestMatchers(
@@ -43,7 +44,7 @@ public class SecurityConfig {
                     config.addAllowedOrigin("https://sebaore13.vercel.app");
                     config.addAllowedOrigin("https://sebaore13.dev");
                     config.addAllowedOrigin("https://www.sebaore13.dev");
-                    
+
                     // Rutas permitidas
                     config.addAllowedHeader("*");
                     config.addAllowedMethod("*");

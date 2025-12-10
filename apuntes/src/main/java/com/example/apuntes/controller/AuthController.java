@@ -43,4 +43,8 @@ public class AuthController {
         );
     }
 
+    @GetMapping("/validate")
+    public Map<String, String> validateToken() {
+        return Map.of("status", "valid");
+    }
 }
